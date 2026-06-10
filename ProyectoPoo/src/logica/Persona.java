@@ -1,6 +1,5 @@
 package logica;
 
-import java.util.List;
 import java.util.Map;
 
 public class Persona {
@@ -38,16 +37,20 @@ public class Persona {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public Map<Integer, Prestamo> getPrestamos() {
+		return prestamos;
+	}
+	
 	public void agregarPrestamo(Prestamo prestamo) {
 		Integer numPrestamo = prestamo.getNumero();
 		prestamos.put(numPrestamo, prestamo);
 	}
+	
 	public void eliminarPrestamo(Prestamo prestamo) { 
-		
+		Integer numPrestamo = prestamo.getNumero();
+		prestamos.remove(numPrestamo);
 	}
 
-	public List<Prestamo> getPrestamos() {
-		
-	}
-	
+
 }
