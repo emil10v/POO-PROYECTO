@@ -67,5 +67,7 @@ public class Prestamo {
 	        i.setPrestamo(null);
 	    }
 	    items.clear();
+	    if (alerta != null)
+	        alerta.desactivar();
 	}
 }

@@ -4,22 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Item {
+	private Integer codigo;
 	private String nombre;
 	private Tipo tipo;
 	private List<Categoria> categorias;
 	private Prestamo prestamo;
 	
-	public Item(Tipo tipo, String nombre) {
+	public Item(Integer codigo, Tipo tipo, String nombre) {
+		this.codigo = codigo;
 		this.tipo = tipo;
 		this.nombre = nombre;
 		this.categorias = new ArrayList<Categoria>();
 		this.prestamo = null;
 	}
-	public Item(Tipo tipo, String nombre, List<Categoria> categorias) {
+	public Item(Integer codigo,Tipo tipo, String nombre, List<Categoria> categorias) {
+		this.codigo = codigo;
 		this.tipo = tipo;
 		this.nombre = nombre;
 		this.categorias = categorias;
 		this.prestamo = null;
+		tipo.agregarItem(this);
 	}
 
 	public String getNombre() {
@@ -44,6 +48,7 @@ public class Item {
 	
 	public void agregarCategoria(Categoria categoria) {
 		categorias.add(categoria);
+		categoria.agregarItem(null);
 	}
 	public void eliminarCategoria(Categoria categoria) throws Exception {
 		if (!categorias.remove(categoria))

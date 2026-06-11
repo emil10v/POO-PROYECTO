@@ -4,16 +4,15 @@ import java.time.LocalDateTime;
 
 public class Alerta {
     private Prestamo prestamo;
-    private String mensaje;
     private boolean recurrente;
-    private int frecuenciaMinutos;
+    private Integer frecuenciaMinutos;
     private LocalDateTime fechaProximaEjecucion;
     private boolean activa;
 
-    public Alerta(boolean recurrente, int frecuenciaMinutos, Prestamo prestamo) {
+    public Alerta(boolean recurrente, Integer frecuencia, Prestamo prestamo) {
         this.prestamo = prestamo;
         this.recurrente = recurrente;
-        this.frecuenciaMinutos = frecuenciaMinutos;
+        this.frecuenciaMinutos = frecuencia;
         this.fechaProximaEjecucion = prestamo.getFechaPrestamo().plusMinutes(frecuenciaMinutos);
         this.activa = true;
     }

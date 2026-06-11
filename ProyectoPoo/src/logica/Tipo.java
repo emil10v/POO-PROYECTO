@@ -1,5 +1,32 @@
 package logica;
 
-public class Tipo {
+import java.util.ArrayList;
+import java.util.List;
 
+public class Tipo {
+	private String nombre;
+	private List<Item> items;
+	
+	public Tipo(String nombre) {
+		this.nombre = nombre;
+		this.items = new ArrayList<Item>();
+	}
+	public String getNombre() {
+		return nombre;
+	}
+	
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	
+	public List<Item> getItems() {
+		return items;
+	}
+	public void agregarItem(Item item) {
+		items.add(item);
+	}
+	public void eliminarItem(Item item) throws Exception {
+	    if (!items.remove(item))
+	        throw new Exception("Item no encontrado.");
+	}
 }

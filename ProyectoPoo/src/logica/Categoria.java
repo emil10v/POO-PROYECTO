@@ -23,12 +23,10 @@ public class Categoria {
 	public void agregarItem(Item item) {
 		items.add(item);
 	}
+
 	public void eliminarItem(Item item) throws Exception {
-		for	(Item i : items) {
-			if (i == item)
-				items.remove(i);
-				return;
-		}
-		throw new Exception("Item no encontrada.");
+	    if (!items.remove(item))
+	        throw new Exception("Item no encontrado.");
 	}
 }
+

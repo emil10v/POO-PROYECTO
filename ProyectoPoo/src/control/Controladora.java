@@ -1,15 +1,19 @@
 package control;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
+import logica.Alerta;
 import logica.Categoria;
 import logica.Item;
 import logica.Persona;
 import logica.Prestamo;
 import logica.Tipo;
 
-public class Controladora {
+public class Controladora implements Serializable{
 	private static Controladora instance = null; 
 	private Map<String, Persona> personas;
 	private Map<Integer, Prestamo> prestamos;
@@ -20,70 +24,178 @@ public class Controladora {
 	private int consecutivoPrestamo;
 	private int consecutivoItem;
 	
+	private Controladora() {
+	    personas = new TreeMap<>();
+	    prestamos = new TreeMap<>();
+	    items = new TreeMap<>();
+	    tipos = new ArrayList<>();
+	    categorias = new ArrayList<>();
+	    this.consecutivoItem = 1;
+	    this.consecutivoPrestamo = 1;
+	}
+	private void verificarPersonaNoExiste(String telefono) throws Exception {
+	    if(personas.containsKey(telefono))
+	        throw new Exception("La persona ya existe.");
+	}
+	private void verificarPersonaExiste(String telefono) throws Exception {
+	    if(!personas.containsKey(telefono))
+	        throw new Exception("Persona no encontrada.");
+	}
+	
 	public static Controladora getInstance() {
-		
+	    if(instance == null)
+	        instance = new Controladora();
+	    return instance;
 	}
 
 	// Personas
-	public void crearPersona(String nombre, String telefono, String email) {
-		
+	public void crearPersona(String nombre, String telefono, String email) throws Exception {
+	    verificarPersonaNoExiste(telefono);
+	    Persona p = new Persona(nombre, telefono, email);
+	    personas.put(telefono, p);
 	}
 
-	public void editarPersona(String nombre, String telefono, String email) {
-		
+	public void editarPersona(String nombre, String telefono, String email) throws Exception {
+		verificarPersonaExiste(telefono)
+	    Persona p = personas.get(telefono);
+	    p.setNombre(nombre);
+	    p.setEmail(email);
 	}
-	public void borrarPersona(String telefono) {
-		
+	public void borrarPersona(String telefono) throws Exception {
+		verificarPersonaExiste(telefono);
+	    Persona persona = personas.get(telefono);
+	    for(Prestamo p : persona.getPrestamos().values()) {
+	        prestamos.remove(p.getNumero());
+	    }
+	    personas.remove(telefono);
 	}
-	public Persona getPersona(String ) {
-		
+	public Persona getPersona(String telefono) {
+	    return personas.get(telefono);
 	}
 
-	public List<Persona> getPersonas();
+	public List<Persona> getPersonas() {
+		  return new ArrayList<>(personas.values());
+	}
 
 	// Préstamos
-	public Prestamo crearPrestamo(Persona persona, List<Item> items);
+	public void crearPrestamo(Persona persona, List<Item> items) throws Exception {
+		for(Item item : items) {
+		    if(item.getPrestamo() != null) 
+		    	throw new Exception(item.getNombre()+ " ya está prestado.");
+		}
+		Prestamo prestamo = new Prestamo(consecutivoPrestamo, items, persona);
+		prestamos.put(consecutivoPrestamo,prestamo);
+		persona.agregarPrestamo(prestamo);
+		for(Item item : items) {
+		    item.setPrestamo(prestamo);
+		}
+		consecutivoPrestamo++;
+	}
 
-	public void eliminarPrestamo(int numero);
+	public void terminarPrestamo(int numero) {
+		Prestamo p = prestamos.get(numero);
+		p.finalizar();
+	}
 
-	public Prestamo getPrestamo(int numero);
+	public Prestamo getPrestamo(int numero) {
+		return prestamos.get(numero);
+	}
 
-	public List<Prestamo> getPrestamos();
-
-	public void terminarPrestamo(int numero);
-
-	public void actualizarPrestamo(int numero);
+	public List<Prestamo> getPrestamos() {
+		return new ArrayList<Prestamo>(prestamos.values());
+	}
 
 	// Ítems
-	public void crearItem(Tipo tipo, String nombre, String descripcion);
+	public void crearItem(Tipo tipo, String nombre) throws Exception {
+		Item item = new Item(consecutivoItem, tipo, nombre);
+		items.put(consecutivoItem, item);
+		tipo.agregarItem(item);
+		items.put(consecutivoItem,item);
+		consecutivoItem++;
+	}
 
-	public void editarItem(int codigo, Tipo tipo, String nombre, String descripcion);
+	public void editarItem(int codigo, Tipo tipo, String nombre) throws Exception {
+	    Item item = getItem(codigo);
+	    item.setNombre(nombre);
+	    item.setTipo(tipo);
+	}
 
-	public void borrarItem(int codigo);
+	public void borrarItem(int codigo) throws Exception {
+		    Item item = items.get(codigo);
+		    if(item.getPrestamo() != null)
+		        throw new Exception("El item está prestado.");
+		    item.getTipo().eliminarItem(item);
+		    for(Categoria c : item.getCategorias()) {
+		        c.eliminarItem(item);
+		    }
+		    items.remove(codigo);
+		}
 
-	public Item getItem(int codigo);
+	public Item getItem(int codigo) {
+		return items.get(codigo);
+	}
 
-	public List<Item> getItems();
+	public List<Item> getItems() {
+		 return new ArrayList<>(items.values());
+	}
 
 	// Tipos
-	public void crearTipo(String nombre);
+	public void crearTipo(String nombre) throws Exception {
+		  if(getTipo(nombre) != null)
+		        throw new Exception("Tipo duplicado.");
+		    tipos.add(new Tipo(nombre));
+	}
 
-	public Tipo getTipo(String nombre);
+	public Tipo getTipo(String nombre) throws Exception {
+	    for(Tipo t : tipos) {
+	        if(t.getNombre().equals(nombre))
+	            return t;
+	    }
+	    throw new Exception("Tipo no existe");
+	}
 
-	public List<Tipo> getTipos();
+	public List<Tipo> getTipos() {
+		return tipos;
+	}
 
 	// Categorías
-	public void crearCategoria(String nombre);
+	public void crearCategoria(String nombre) {
+		   categorias.add(new Categoria(nombre));
+	}
 
-	public Categoria getCategoria(String nombre);
+	public Categoria getCategoria(String nombre) throws Exception {
+	    for(Categoria c : categorias) {
+	        if(c.getNombre().equals(nombre))
+	            return c;
+	    }
+	    throw new Exception("Categoria no existe");
+	}
 
-	public List<Categoria> getCategorias();
+	public List<Categoria> getCategorias() {
+		return categorias;
+	}
 
 	// Alertas
-	public List<Alerta> mostrarAlertas();
+	public void crearAlertaPrestamo(Integer numPrestamo, boolean recurrente, int minutos) throws Exception {
+	    Prestamo p = getPrestamo(numPrestamo);
+	    Alerta alerta = new Alerta(recurrente, minutos, p);
+	    p.setAlerta(alerta);
+	}
+	
+	public List<String> mostrarAlertas() {
+	    List<String> alertas = new ArrayList<>();
+	    for(Prestamo p : prestamos.values()) {
+	        String mensaje = p.mostrarAlerta();
+	        if(mensaje != null)
+	            alertas.add(mensaje);
+	    }
+	    return alertas;
+	}
 
 	// Reportes
-	public String generarReportePersona(String idPersona);
+	public String generarReportePersona(String idPersona) {
+		
+	}
 
 	public String generarReporteItem(int codigoItem);
 
