@@ -1,6 +1,7 @@
 package logica;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Persona {
 	private String nombre;
@@ -12,6 +13,7 @@ public class Persona {
 		this.nombre = nombre;
 		this.telefono = telefono;
 		this.email = email;
+		this.prestamos = new TreeMap<Integer, Prestamo>();
 	}
 
 	public String getNombre() {

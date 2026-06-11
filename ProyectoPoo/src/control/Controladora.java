@@ -42,9 +42,7 @@ public class Controladora {
 	public List<Persona> getPersonas();
 
 	// Préstamos
-	public Prestamo crearPrestamo(Persona persona,
-	                              List<Item> items,
-	                              Alerta alerta);
+	public Prestamo crearPrestamo(Persona persona, List<Item> items);
 
 	public void eliminarPrestamo(int numero);
 
@@ -57,14 +55,9 @@ public class Controladora {
 	public void actualizarPrestamo(int numero);
 
 	// Ítems
-	public void crearItem(Tipo tipo,
-	                      String nombre,
-	                      String descripcion);
+	public void crearItem(Tipo tipo, String nombre, String descripcion);
 
-	public void editarItem(int codigo,
-	                       Tipo tipo,
-	                       String nombre,
-	                       String descripcion);
+	public void editarItem(int codigo, Tipo tipo, String nombre, String descripcion);
 
 	public void borrarItem(int codigo);
 

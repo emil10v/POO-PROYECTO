@@ -15,27 +15,25 @@ public class Alerta {
         this.recurrente = recurrente;
         this.frecuenciaMinutos = frecuenciaMinutos;
         this.fechaProximaEjecucion = prestamo.getFechaPrestamo().plusMinutes(frecuenciaMinutos);
-        Persona persona = prestamo.getPersona();
-        this.mensaje = persona.getNombre() + " tiene prestados los items: \n";
-        for (Item i : prestamo.getItems() ) {
-        	mensaje += i.getNombre() + "\n";
-        }
         this.activa = true;
     }
 
     
     public String mostrar() {
-        if (!activa) {
+        if (!activa) 
             return null;
-        }
         if (LocalDateTime.now().isAfter(fechaProximaEjecucion)) {
-            String resultado = mensaje;
             if (recurrente) {
                 fechaProximaEjecucion = fechaProximaEjecucion.plusMinutes(frecuenciaMinutos);
             } else {
                 activa = false;
             }
-            return resultado;
+            Persona persona = prestamo.getPersona();
+        	String mensaje = persona.getNombre() + " tiene prestados los items: \n";
+            for (Item i : prestamo.getItems() ) {
+            	mensaje += i.getNombre() + "\n";
+            }
+            return mensaje;
         }
         return null;
     }
