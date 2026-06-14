@@ -1,9 +1,10 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tipo {
+public class Tipo implements Serializable {
 	private String nombre;
 	private List<Item> items;
 	

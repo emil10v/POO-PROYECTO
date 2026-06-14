@@ -1,9 +1,10 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Persona {
+public class Persona implements Serializable  {
 	private String nombre;
 	private String telefono;
 	private String email;

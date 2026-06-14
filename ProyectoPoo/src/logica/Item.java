@@ -1,9 +1,10 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Item {
+public class Item implements Serializable  {
 	private Integer codigo;
 	private String nombre;
 	private Tipo tipo;
@@ -44,6 +45,7 @@ public class Item {
 	
 	public void setTipo(Tipo tipo) {
 		this.tipo = tipo;
+		tipo.agregarItem(this);
 	}
 	
 	public void agregarCategoria(Categoria categoria) {
@@ -61,6 +63,10 @@ public class Item {
 	
 	public Prestamo getPrestamo() {
 		return prestamo;
+	}
+	
+	public Integer getCodigo() {
+		return codigo;
 	}
 
 }
