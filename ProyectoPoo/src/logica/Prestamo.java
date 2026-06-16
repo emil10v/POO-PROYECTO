@@ -2,6 +2,7 @@ package logica;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Prestamo implements Serializable {
@@ -11,9 +12,9 @@ public class Prestamo implements Serializable {
 	private List<Item> items;
 	private Alerta alerta;
 	
-	public Prestamo(Integer numero,List<Item> items, Persona persona) {
+	public Prestamo(Integer numero, Persona persona) {
 		this.numero = numero;
-		this.items = items;
+		this.items = new ArrayList<Item>();
 		this.persona = persona;
 		this.fechaPrestamo = LocalDateTime.now();
 		this.alerta = null;

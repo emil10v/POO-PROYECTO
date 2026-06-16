@@ -84,12 +84,8 @@ public class Controladora implements Serializable{
 	}
 
 	// Préstamos
-	public void crearPrestamo(Persona persona, List<Item> items) throws Exception {
-		for(Item item : items) {
-		    if(item.getPrestamo() != null) 
-		    	throw new Exception(item.getNombre()+ " ya está prestado.");
-		}
-		Prestamo prestamo = new Prestamo(consecutivoPrestamo, items, persona);
+	public void crearPrestamo(Persona persona) throws Exception {
+		Prestamo prestamo = new Prestamo(consecutivoPrestamo, persona);
 		prestamos.put(consecutivoPrestamo,prestamo);
 		persona.agregarPrestamo(prestamo);
 		for(Item item : items) {
@@ -117,8 +113,9 @@ public class Controladora implements Serializable{
 	}
 
 	public void agregarItemsPrestamo(List<Item> items, Prestamo prestamo) throws Exception {
-		for (Item i : items) {
-			prestamo.agregarItem(i);
+		for(Item item : items) {
+		    if(item.getPrestamo() != null) 
+		    	throw new Exception(item.getNombre()+ " ya está prestado.");
 		}
 	}
 	
