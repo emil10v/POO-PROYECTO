@@ -38,7 +38,7 @@ public class Prestamo implements Serializable {
 	
 	public void agregarItem(Item item) throws Exception {
 		if (item.getPrestamo() != null)
-			throw new Exception("El item ya se encuentra en un prestamo.");
+			throw new Exception("El item " + item.getNombre() + " ya se encuentra en un prestamo.");
 		items.add(item);
 		item.setPrestamo(this);
 	}

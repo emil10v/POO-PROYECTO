@@ -62,7 +62,7 @@ public class Controladora implements Serializable{
 	}
 
 	public void editarPersona(String nombre, String telefono, String email) throws Exception {
-		verificarPersonaExiste(telefono)
+		verificarPersonaExiste(telefono);
 	    Persona p = personas.get(telefono);
 	    p.setNombre(nombre);
 	    p.setEmail(email);
@@ -84,11 +84,12 @@ public class Controladora implements Serializable{
 	}
 
 	// Préstamos
-	public void crearPrestamo(Persona persona) throws Exception {
+	public void crearPrestamo(String telefonoPersona) throws Exception {
+		Persona persona = getPersona(telefonoPersona);
 		Prestamo prestamo = new Prestamo(consecutivoPrestamo, persona);
 		prestamos.put(consecutivoPrestamo,prestamo);
 		persona.agregarPrestamo(prestamo);
-		for(Item item : items) {
+		for(Item item : items.values()) {
 		    item.setPrestamo(prestamo);
 		}
 		consecutivoPrestamo++;
@@ -112,20 +113,20 @@ public class Controladora implements Serializable{
 		return new ArrayList<Prestamo>(prestamos.values());
 	}
 
-	public void agregarItemsPrestamo(List<Item> items, Prestamo prestamo) throws Exception {
+	public void agregarItemsPrestamo(List<Item> items, Integer numPrestamo) throws Exception {
+		Prestamo prestamo = prestamos.get(numPrestamo);
 		for(Item item : items) {
-		    if(item.getPrestamo() != null) 
-		    	throw new Exception(item.getNombre()+ " ya está prestado.");
+		    prestamo.agregarItem(item);
 		}
 	}
 	
 	// Ítems
-	public void crearItem(Tipo tipo, String nombre) throws Exception {
-		Item item = new Item(consecutivoItem, tipo, nombre);
-		items.put(consecutivoItem, item);
-		tipo.agregarItem(item);
-		items.put(consecutivoItem,item);
-		consecutivoItem++;
+	public void crearItem(String nombreTipo, String nombre) throws Exception {
+	    Tipo tipo = getTipo(nombreTipo);
+	    Item item = new Item(consecutivoItem, tipo, nombre);
+	    items.put(consecutivoItem, item);
+	    tipo.agregarItem(item);
+	    consecutivoItem++;
 	}
 
 	public void editarItem(int codigo, Tipo tipo, String nombre) throws Exception {
