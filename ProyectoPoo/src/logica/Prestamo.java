@@ -11,6 +11,7 @@ public class Prestamo implements Serializable {
 	private Persona persona;
 	private List<Item> items;
 	private Alerta alerta;
+	private boolean activo;
 	
 	public Prestamo(Integer numero, Persona persona) {
 		this.numero = numero;
@@ -18,6 +19,7 @@ public class Prestamo implements Serializable {
 		this.persona = persona;
 		this.fechaPrestamo = LocalDateTime.now();
 		this.alerta = null;
+		this.activo = true;
 	}
 
 	public int getNumero() {
@@ -38,7 +40,7 @@ public class Prestamo implements Serializable {
 	
 	public void agregarItem(Item item) throws Exception {
 		if (item.getPrestamo() != null)
-			throw new Exception("El item " + item.getNombre() + " ya se encuentra en un prestamo.");
+			throw new Exception("El item " + item.getNombre() + " ya se encuentra en un préstamo.");
 		items.add(item);
 		item.setPrestamo(this);
 	}
@@ -71,5 +73,9 @@ public class Prestamo implements Serializable {
 	    items.clear();
 	    if (alerta != null)
 	        alerta.desactivar();
+	    activo = false;
+	}
+	public boolean estaActivo() {
+		return activo;
 	}
 }

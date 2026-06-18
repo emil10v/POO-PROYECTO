@@ -52,12 +52,11 @@ public class Item implements Serializable  {
 		categorias.add(categoria);
 		categoria.agregarItem(this);
 	}
+	
 	public void eliminarCategoria(Categoria categoria) throws Exception {
 		if (!categorias.remove(categoria))
 		    throw new Exception("Categoria no encontrada.");
 		categoria.eliminarItem(this);
-		categorias.remove(categoria);
-	
 	}
 	
 	public void setPrestamo(Prestamo prestamo) {

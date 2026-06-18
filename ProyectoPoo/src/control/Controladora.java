@@ -85,13 +85,14 @@ public class Controladora implements Serializable{
 
 	// Préstamos
 	public void crearPrestamo(String telefonoPersona) throws Exception {
+		if (items.isEmpty())
+			throw new Exception("No hay items para prestar.");
+		if (personas.isEmpty())
+			throw new Exception("No hay personas para hacer el prestamo.");
 		Persona persona = getPersona(telefonoPersona);
 		Prestamo prestamo = new Prestamo(consecutivoPrestamo, persona);
 		prestamos.put(consecutivoPrestamo,prestamo);
 		persona.agregarPrestamo(prestamo);
-		for(Item item : items.values()) {
-		    item.setPrestamo(prestamo);
-		}
 		consecutivoPrestamo++;
 	}
 	
@@ -101,7 +102,7 @@ public class Controladora implements Serializable{
 	    if(p == null)
 	        throw new Exception("Préstamo no encontrado.");
 		p.finalizar();
-		prestamos.remove(numPrestamo);
+		prestamos.remove(p);
 	}
 	
 
@@ -113,11 +114,14 @@ public class Controladora implements Serializable{
 		return new ArrayList<Prestamo>(prestamos.values());
 	}
 
-	public void agregarItemsPrestamo(List<Item> items, Integer numPrestamo) throws Exception {
+	public void agregarItemsPrestamo(List<Integer> codigosItems, Integer numPrestamo) throws Exception {
 		Prestamo prestamo = prestamos.get(numPrestamo);
-		for(Item item : items) {
-		    prestamo.agregarItem(item);
-		}
+	    if(prestamo == null)
+	        throw new Exception("Préstamo no encontrado.");
+	    for(Integer codigo : codigosItems) {
+	        Item item = getItem(codigo);
+	        prestamo.agregarItem(item);
+	    }
 	}
 	
 	// Ítems
@@ -129,16 +133,21 @@ public class Controladora implements Serializable{
 	    consecutivoItem++;
 	}
 
-	public void editarItem(int codigo, Tipo tipo, String nombre) throws Exception {
+	public void editarItem(Integer codigo, String nombreTipo, String nombre, List<String> categorias) throws Exception {
 	    Item item = getItem(codigo);
+	    Tipo tipo = getTipo(nombreTipo);
 	    Tipo anterior = item.getTipo();
-	    if (anterior != tipo) {
+	    if(anterior != tipo) {
 	        anterior.eliminarItem(item);
 	        tipo.agregarItem(item);
 	        item.setTipo(tipo);
 	    }
 	    item.setNombre(nombre);
-	    item.setNombre(nombre);
+	    item.getCategorias().clear();
+	    for(String nombreCategoria : categorias) {
+	        Categoria categoria = getCategoria(nombreCategoria);
+	        item.agregarCategoria(categoria);
+	    }
 	}
 
 	public void borrarItem(int codigo) throws Exception {
@@ -152,8 +161,11 @@ public class Controladora implements Serializable{
 		    items.remove(codigo);
 		}
 
-	public Item getItem(int codigo) {
-		return items.get(codigo);
+	public Item getItem(int codigo) throws Exception {
+	    Item item = items.get(codigo);
+	    if(item == null)
+	        throw new Exception("Item no encontrado.");
+	    return item;
 	}
 
 	public List<Item> getItems() {
@@ -163,16 +175,16 @@ public class Controladora implements Serializable{
 	// Tipos
 	public void crearTipo(String nombre) throws Exception {
 		  if(getTipo(nombre) != null)
-		        throw new Exception("Tipo duplicado.");
-		    tipos.add(new Tipo(nombre));
+		        throw new Exception("Tipo ya existe.");
+		   tipos.add(new Tipo(nombre));
 	}
 
-	public Tipo getTipo(String nombre) throws Exception {
+	public Tipo getTipo(String nombre) {
 	    for(Tipo t : tipos) {
-	        if(t.getNombre().equals(nombre))
+	        if(t.getNombre().equalsIgnoreCase(nombre))
 	            return t;
 	    }
-	    throw new Exception("Tipo no existe");
+	    return null;
 	}
 
 	public List<Tipo> getTipos() {
@@ -180,16 +192,18 @@ public class Controladora implements Serializable{
 	}
 
 	// Categorías
-	public void crearCategoria(String nombre) {
-		   categorias.add(new Categoria(nombre));
+	public void crearCategoria(String nombre) throws Exception {
+		  if(getCategoria(nombre) != null)
+		        throw new Exception("Categoria ya existe.");
+		  categorias.add(new Categoria(nombre));
 	}
 
 	public Categoria getCategoria(String nombre) throws Exception {
 	    for(Categoria c : categorias) {
-	        if(c.getNombre().equals(nombre))
+	        if(c.getNombre().equalsIgnoreCase(nombre))
 	            return c;
 	    }
-	    throw new Exception("Categoria no existe");
+	    return null;
 	}
 
 	public List<Categoria> getCategorias() {
@@ -226,16 +240,17 @@ public class Controladora implements Serializable{
 	    reporte += "Email: " + persona.getEmail() + "\n\n";
 	    reporte += "Prestamos:\n";
 	    for (Prestamo p : persona.getPrestamos().values()) {
-	        reporte += "- Prestamo #" + p.getNumero();
-	        reporte += " (" + p.getFechaPrestamo() + ")\n";
+	        reporte += "- Prestamo #" + p.getNumero() + " (" + p.getFechaPrestamo() + ")";
+	        if (p.estaActivo())
+	        	reporte += " Activo\n";
+	        else 
+	        	reporte += " Terminado\n";
 	    }
 	    return reporte;
 	}
 
 	public String generarReporteItem(int codigoItem) throws Exception {
-
 	    Item item = getItem(codigoItem);
-
 	    String reporte = "";
 	    reporte += "--- REPORTE ITEM ---\n";
 	    reporte += "Codigo: " + item.getCodigo() + "\n";
