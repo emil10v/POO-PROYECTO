@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import logica.Alerta;
 import logica.Categoria;
@@ -47,7 +49,13 @@ public class Controladora implements Serializable{
 	    if(!personas.containsKey(telefono))
 	        throw new Exception("Persona no encontrada.");
 	}
-	
+    private void revisarEmailValido(String email) throws Exception {
+        Pattern p = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+        Matcher m = p.matcher(email);
+        if(!m.matches())
+        	throw new Exception("Email invalido");
+    }  
+    
 	public static Controladora getInstance() {
 	    if(instance == null)
 	        instance = new Controladora();
@@ -57,13 +65,16 @@ public class Controladora implements Serializable{
 	// Personas
 	public void crearPersona(String nombre, String telefono, String email) throws Exception {
 	    verificarPersonaNoExiste(telefono);
+	    revisarEmailValido(email);
 	    Persona p = new Persona(nombre, telefono, email);
 	    personas.put(telefono, p);
 	}
 
 	public void editarPersona(String nombre, String telefono, String email) throws Exception {
 		verificarPersonaExiste(telefono);
+	    revisarEmailValido(email);
 	    Persona p = personas.get(telefono);
+	    
 	    p.setNombre(nombre);
 	    p.setEmail(email);
 	}
@@ -239,12 +250,20 @@ public class Controladora implements Serializable{
 	    reporte += "Telefono: " + persona.getTelefono() + "\n";
 	    reporte += "Email: " + persona.getEmail() + "\n\n";
 	    reporte += "Prestamos:\n";
+	    if (persona.getPrestamos().isEmpty()) {
+	    		reporte += "Sin préstamos registrados\n";
+	    		return reporte;
+	    }
 	    for (Prestamo p : persona.getPrestamos().values()) {
 	        reporte += "- Prestamo #" + p.getNumero() + " (" + p.getFechaPrestamo() + ")";
 	        if (p.estaActivo())
-	        	reporte += " Activo\n";
+	        	reporte += " (Activo)\n";
 	        else 
-	        	reporte += " Terminado\n";
+	        	reporte += " (Terminado)\n";
+	        reporte += "Items:\n";
+	        for(Item i : p.getItems()) {
+	            reporte += "   - " + i.getNombre() + "\n";
+	        }
 	    }
 	    return reporte;
 	}

@@ -23,8 +23,7 @@ public class VentanaPrincipal {
 	private JButton btnTipos;
 	private JScrollPane scrollPane;
 	private JButton btnCrear;
-	private JButton btnAgregarItem;
-	private JButton btnRetornarItem;
+	private JButton btnVerItems;
 	private JButton btnFinalizar;
 
 	/**
@@ -115,27 +114,25 @@ public class VentanaPrincipal {
 		scrollPane.setViewportView(tablePrestamos);
 		
 		btnCrear = new JButton("Crear");
-		btnCrear.setBounds(313, 19, 118, 40);
+		btnCrear.setBounds(313, 19, 118, 60);
 		panelPrestamos.add(btnCrear);
 		
-		btnAgregarItem = new JButton("Agregar Item");
-		btnAgregarItem.addActionListener(new ActionListener() {
+		btnVerItems = new JButton("Ver Items");
+		btnVerItems.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				DetallePrestamo ventana = new DetallePrestamo();
+				ventana.setVisible(true);
 			}
 		});
-		btnAgregarItem.setBounds(313, 70, 118, 40);
-		panelPrestamos.add(btnAgregarItem);
-		
-		btnRetornarItem = new JButton("Retornar Item");
-		btnRetornarItem.setBounds(313, 121, 118, 40);
-		panelPrestamos.add(btnRetornarItem);
+		btnVerItems.setBounds(313, 90, 118, 60);
+		panelPrestamos.add(btnVerItems);
 		
 		btnFinalizar = new JButton("Finalizar");
 		btnFinalizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		btnFinalizar.setBounds(313, 172, 118, 40);
+		btnFinalizar.setBounds(313, 161, 118, 60);
 		panelPrestamos.add(btnFinalizar);
 		
 		JPanel panelReportes = new JPanel();

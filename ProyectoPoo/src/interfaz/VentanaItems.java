@@ -7,9 +7,16 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+import control.Controladora;
+import logica.Item;
+import logica.Persona;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.awt.event.ActionEvent;
 
 public class VentanaItems extends JDialog {
@@ -22,6 +29,22 @@ public class VentanaItems extends JDialog {
 	private JButton btnBorrar;
 	private JButton btnConsultar;
 
+	private void cargarItems() {
+		Controladora control = Controladora.getInstance();
+		DefaultTableModel model = (DefaultTableModel) tableItems.getModel();
+		model.setRowCount(0);
+		List<Item> listaItems = control.getItems();
+		for (Item item : listaItems) {
+			Object[] fila = new Object[] {item.getCodigo(), item.getNombre(), item.getTipo().getNombre()};
+			model.addRow(fila);
+		}
+	}
+	private void crearItem() {
+		
+	}
+	
+	
+	
 	/**
 	 * Launch the application.
 	 */
@@ -50,11 +73,32 @@ public class VentanaItems extends JDialog {
 			contentPanel.add(scrollPane);
 			{
 				tableItems = new JTable();
+				tableItems.setModel(new DefaultTableModel(
+					new Object[][] {
+					},
+					new String[] {
+						"C\u00F3digo", "Nombre", "Tipo"
+					}
+				) {
+					boolean[] columnEditables = new boolean[] {
+						false, false, false
+					};
+					public boolean isCellEditable(int row, int column) {
+						return columnEditables[column];
+					}
+				});
+				tableItems.getColumnModel().getColumn(0).setPreferredWidth(73);
+				tableItems.getColumnModel().getColumn(2).setPreferredWidth(72);
 				scrollPane.setViewportView(tableItems);
 			}
 		}
 		{
 			btnCrear = new JButton("Crear");
+			btnCrear.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					crearItem();
+				}
+			});
 			btnCrear.setBounds(316, 11, 110, 40);
 			contentPanel.add(btnCrear);
 		}
@@ -93,6 +137,7 @@ public class VentanaItems extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
+		cargarItems();
 	}
 
 }
