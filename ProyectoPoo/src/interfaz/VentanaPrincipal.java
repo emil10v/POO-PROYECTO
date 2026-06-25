@@ -3,6 +3,8 @@ package interfaz;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import java.awt.BorderLayout;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
@@ -13,6 +15,10 @@ import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import control.Controladora;
+import logica.Prestamo;
 
 public class VentanaPrincipal {
 
@@ -25,7 +31,52 @@ public class VentanaPrincipal {
 	private JButton btnCrear;
 	private JButton btnVerItems;
 	private JButton btnFinalizar;
+	private JTable tablePrestamos;
 
+	
+	private void cargarPrestamos() {
+		DefaultTableModel model = (DefaultTableModel) tablePrestamos.getModel();
+		model.setRowCount(0);
+		Controladora control = Controladora.getInstance()
+		for(Prestamo p : control.getPrestamos()) {
+			model.addRow(new Object[] {p.getNumero(),p.getPersona().getNombre(),p.getFechaPrestamo()
+			});
+		}
+	}
+	
+	private Integer getPrestamoSeleccionado() {
+		int fila = tablePrestamos.getSelectedRow();
+		if(fila == -1) {
+			JOptionPane.showMessageDialog(frame,"Seleccione un préstamo.");
+			return null;
+		}
+		return (Integer)tablePrestamos.getValueAt(fila, 0);
+	}
+	
+	private void crearPrestamo() {
+		Controladora control = Controladora.getInstance();
+		if (control.getItems().isEmpty() || control.getPersonas().isEmpty()))
+			throw new Exception("Debe de existir al menos una Persona y un Item");
+		VentanaCrearPrestamo ventana = new VentanaCrearPrestamo();
+		ventana.setModal(true);
+		ventana.setVisible(true);
+		cargarPrestamos();
+	}
+	
+	
+	private void finalizarPrestamo() {
+		try {
+			Integer numero = getPrestamoSeleccionado();
+			if(numero == null)
+				return;
+			Controladora control = Controladora.getInstance();
+			control.terminarPrestamo(numero);
+			cargarPrestamos();
+		} catch(Exception e) {
+			JOptionPane.showMessageDialog(frame,e.getMessage());
+		}
+	}
+	
 	/**
 	 * Launch the application.
 	 */
@@ -110,10 +161,29 @@ public class VentanaPrincipal {
 		scrollPane.setBounds(0, 11, 313, 213);
 		panelPrestamos.add(scrollPane);
 		
-		JTable tablePrestamos = new JTable();
+		tablePrestamos = new JTable();
+		tablePrestamos.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"N\u00FAmero", "Persona", "Fecha"
+			}
+		) {
+			boolean[] columnEditables = new boolean[] {
+				false, false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
 		scrollPane.setViewportView(tablePrestamos);
 		
 		btnCrear = new JButton("Crear");
+		btnCrear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				crearPrestamo();
+			}
+		});
 		btnCrear.setBounds(313, 19, 118, 60);
 		panelPrestamos.add(btnCrear);
 		
@@ -130,6 +200,7 @@ public class VentanaPrincipal {
 		btnFinalizar = new JButton("Finalizar");
 		btnFinalizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				finalizarPrestamo();
 			}
 		});
 		btnFinalizar.setBounds(313, 161, 118, 60);
@@ -137,5 +208,7 @@ public class VentanaPrincipal {
 		
 		JPanel panelReportes = new JPanel();
 		tabbedPane.addTab("Reportes", null, panelReportes, null);
+		
+		cargarPrestamos();
 	}
 }

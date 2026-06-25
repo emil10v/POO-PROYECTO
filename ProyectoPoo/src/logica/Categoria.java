@@ -28,6 +28,7 @@ public class Categoria implements Serializable  {
 	public void eliminarItem(Item item) throws Exception {
 	    if (!items.remove(item))
 	        throw new Exception("Item no encontrado.");
+	    item.eliminarCategoria(this);
 	}
 }
 

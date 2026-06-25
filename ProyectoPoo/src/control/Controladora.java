@@ -40,6 +40,7 @@ public class Controladora implements Serializable{
 	    categorias = new ArrayList<>();
 	    this.consecutivoItem = 1;
 	    this.consecutivoPrestamo = 1;
+	    tipos.add(new Tipo("Genérico"));
 	}
 	private void verificarPersonaNoExiste(String telefono) throws Exception {
 	    if(personas.containsKey(telefono))
@@ -136,12 +137,15 @@ public class Controladora implements Serializable{
 	}
 	
 	// Ítems
-	public void crearItem(String nombreTipo, String nombre) throws Exception {
+	public Item crearItem(String nombreTipo, String nombre) throws Exception {
 	    Tipo tipo = getTipo(nombreTipo);
+	    if(tipo == null)
+	        throw new Exception("Debe existir al menos un tipo para crear un item.");
 	    Item item = new Item(consecutivoItem, tipo, nombre);
 	    items.put(consecutivoItem, item);
 	    tipo.agregarItem(item);
 	    consecutivoItem++;
+	    return item;
 	}
 
 	public void editarItem(Integer codigo, String nombreTipo, String nombre, List<String> categorias) throws Exception {
@@ -178,6 +182,18 @@ public class Controladora implements Serializable{
 	        throw new Exception("Item no encontrado.");
 	    return item;
 	}
+	public void agregarCategoriaItem(Integer codigoItem, String nombreCategoria) throws Exception {
+		Item item = getItem(codigoItem);
+		Categoria categoria =
+		getCategoria(nombreCategoria);
+		item.agregarCategoria(categoria);
+	}
+	public void eliminarCategoriaItem(Integer codigoItem, String nombreCategoria)throws Exception {
+		Item item = getItem(codigoItem);
+		Categoria categoria =
+		getCategoria(nombreCategoria);
+		item.eliminarCategoria(categoria);
+	}
 
 	public List<Item> getItems() {
 		 return new ArrayList<>(items.values());
@@ -201,6 +217,28 @@ public class Controladora implements Serializable{
 	public List<Tipo> getTipos() {
 		return tipos;
 	}
+	
+	public void editarTipo(String nombre, String nuevo) throws Exception {
+	Tipo tipo = getTipo(nombre);
+	if(tipo == null)
+		throw new Exception("Tipo no encontrado.");
+	tipo.setNombre(nuevo);
+	}
+	
+	public void borrarTipo(String nombre) throws Exception {
+	    Tipo tipo = getTipo(nombre);
+	    if(tipo == null)
+	        throw new Exception("Tipo no encontrado.");
+	    if(tipo.getNombre().equals("Genérico"))
+	        throw new Exception("El tipo genérico no puede borrarse.");
+	    Tipo generico = getTipo("Genérico");
+	    List<Item> items = tipo.getItems();
+	    for(Item item : items) {
+	        item.setTipo(generico);
+	    }
+	    items.clear();
+	    tipos.remove(tipo);
+	}
 
 	// Categorías
 	public void crearCategoria(String nombre) throws Exception {
@@ -219,6 +257,19 @@ public class Controladora implements Serializable{
 
 	public List<Categoria> getCategorias() {
 		return categorias;
+	}
+	public void eliminarCategoria(String nombre) throws Exception {
+		Categoria categoria = getCategoria(nombre);
+		List<Item> items = categoria.getItems();
+		for(Item i: items)
+			categoria.eliminarItem(i);
+		categorias.remove(categoria);
+	}
+	public void editarCategoria(String nombre,String nuevoNombre) throws Exception {
+		Categoria c = getCategoria(nombre);
+		if(c == null)
+			throw new Exception("Categoría no encontrada.");
+		c.setNombre(nuevoNombre);
 	}
 
 	// Alertas

@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -12,10 +13,12 @@ import javax.swing.table.DefaultTableModel;
 import control.Controladora;
 import logica.Item;
 import logica.Persona;
+import logica.Tipo;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 
@@ -28,6 +31,19 @@ public class VentanaItems extends JDialog {
 	private JButton btnModificar;
 	private JButton btnBorrar;
 	private JButton btnConsultar;
+	
+	private Integer obtenerCodigoSeleccionado() {
+	    int fila = tableItems.getSelectedRow();
+	    if (fila == -1) {
+	        javax.swing.JOptionPane.showMessageDialog(
+	                this,
+	                "Debe seleccionar un item.",
+	                "Error",
+	                javax.swing.JOptionPane.ERROR_MESSAGE);
+	        return null;
+	    }
+	    return (Integer) tableItems.getValueAt(fila, 0);
+	}
 
 	private void cargarItems() {
 		Controladora control = Controladora.getInstance();
@@ -39,12 +55,69 @@ public class VentanaItems extends JDialog {
 			model.addRow(fila);
 		}
 	}
+	
 	private void crearItem() {
-		
+	    try {
+	        Controladora control = Controladora.getInstance();
+	        if(control.getTipos().isEmpty()) {
+	            JOptionPane.showMessageDialog(this, "Debe crear al menos un tipo antes de crear items.");
+	            return;
+	        }
+	        VentanaEditarItem dialog = new VentanaEditarItem();
+	        dialog.setModal(true);
+	        dialog.setVisible(true);
+	        cargarItems();
+	    } catch(Exception e) {
+	        JOptionPane.showMessageDialog(this, e.getMessage());
+	    }
 	}
 	
+	private void modificarItem() {
+	    int fila = tableItems.getSelectedRow();
+	    if(fila == -1) {
+	        JOptionPane.showMessageDialog(this,"Seleccione un item.");
+	        return;
+	    }
+	    Integer codigo = (Integer) tableItems.getValueAt(fila,0);
+	    VentanaEditarItem ventana = new VentanaEditarItem(codigo);
+	    ventana.setModal(true);
+	    ventana.setVisible(true);
+	    cargarItems();
+	}
 	
+	private void borrarItem() {
+	    try {
+	        Integer codigo = obtenerCodigoSeleccionado();
+	        if (codigo == null)
+	            return;
+	        int opcion = javax.swing.JOptionPane.showConfirmDialog(this,
+	                "¿Desea borrar el item?","Confirmar",javax.swing.JOptionPane.YES_NO_OPTION);
+	        if (opcion != javax.swing.JOptionPane.YES_OPTION)
+	            return;
+	        Controladora control = Controladora.getInstance();
+	        control.borrarItem(codigo);
+	        cargarItems();
+	    } catch (Exception e) {
+	        javax.swing.JOptionPane.showMessageDialog(this,e.getMessage(), "Error",
+	        		javax.swing.JOptionPane.ERROR_MESSAGE);
+	    }
+	}
 	
+	private void consultarItem() {
+	    try {
+	        Integer codigo = obtenerCodigoSeleccionado();
+	        if(codigo == null)
+	            return;
+	        Controladora control = Controladora.getInstance();
+	        String reporte = control.generarReporteItem(codigo);
+	        JOptionPane.showMessageDialog(this,reporte,
+	                "Información del Item",
+	                JOptionPane.INFORMATION_MESSAGE);
+	    } catch(Exception e) {
+	        JOptionPane.showMessageDialog(this,e.getMessage(),"Error",
+	                JOptionPane.ERROR_MESSAGE);
+	    }
+	}
 	/**
 	 * Launch the application.
 	 */
@@ -99,26 +172,37 @@ public class VentanaItems extends JDialog {
 					crearItem();
 				}
 			});
-			btnCrear.setBounds(316, 11, 110, 40);
+			btnCrear.setBounds(310, 11, 126, 40);
 			contentPanel.add(btnCrear);
 		}
 		{
 			btnModificar = new JButton("Modificar");
-			btnModificar.setBounds(320, 62, 106, 40);
+			btnModificar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					modificarItem();
+				}
+			});
+			btnModificar.setBounds(310, 62, 126, 40);
 			contentPanel.add(btnModificar);
 		}
 		{
 			btnBorrar = new JButton("Borrar");
-			btnBorrar.setBounds(320, 113, 106, 40);
+			btnBorrar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					borrarItem();
+				}
+			});
+			btnBorrar.setBounds(310, 113, 126, 40);
 			contentPanel.add(btnBorrar);
 		}
 		{
 			btnConsultar = new JButton("Consultar");
 			btnConsultar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					consultarItem();
 				}
 			});
-			btnConsultar.setBounds(320, 163, 106, 40);
+			btnConsultar.setBounds(310, 163, 126, 40);
 			contentPanel.add(btnConsultar);
 		}
 		{
