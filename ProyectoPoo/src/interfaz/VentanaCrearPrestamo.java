@@ -1,94 +1,195 @@
 package interfaz;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import control.Controladora;
+import logica.Item;
+import logica.Persona;
+import logica.Prestamo;
+
 import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SpinnerModel;
 
 public class VentanaCrearPrestamo extends JDialog {
 
-	private static final long serialVersionUID = 1L;
-	private JTextField textField;
+    private static final long serialVersionUID = 1L;
+    private JPanel panelItems;
+    private JTable tablaPersonas;
+    private JCheckBox checkCrearAlerta;
+    private JPanel contentPanel;
+    private JPanel panelAlerta;
+    private DefaultTableModel modeloTabla;
+    private JCheckBox checkRecurrente;
+    private JSpinner spinnerMinutos;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			VentanaCrearPrestamo dialog = new VentanaCrearPrestamo();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    private void cargarItems() {
+        Controladora control = Controladora.getInstance();
+        panelItems.removeAll();
+        for (Item i : control.getItemsDisponibles()) {
+            JCheckBox check = new JCheckBox(i.getNombre());
+            check.setName(String.valueOf(i.getCodigo()));
+            panelItems.add(check);
+        }
+        panelItems.revalidate();
+        panelItems.repaint();
+    }
 
-	/**
-	 * Create the dialog.
-	 */
-	public VentanaCrearPrestamo() {
-		setBounds(100, 100, 450, 300);
-		getContentPane().setLayout(null);
-		{
-			JPanel contentPanel = new JPanel();
-			contentPanel.setBounds(0, 0, 436, 263);
-			contentPanel.setLayout(null);
-			contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-			getContentPane().add(contentPanel, BorderLayout.NORTH);
-			{
-				JLabel lblNombre = new JLabel("Nombre: ");
-				lblNombre.setBounds(10, 11, 65, 14);
-				contentPanel.add(lblNombre);
-			}
-			{
-				JLabel lblTipo = new JLabel("Tipo: ");
-				lblTipo.setBounds(10, 40, 44, 14);
-				contentPanel.add(lblTipo);
-			}
-			{
-				JLabel labelCategorias = new JLabel("Categor\u00EDas: ");
-				labelCategorias.setBounds(10, 63, 75, 14);
-				contentPanel.add(labelCategorias);
-			}
-			{
-				textField = new JTextField();
-				textField.setColumns(10);
-				textField.setBounds(70, 8, 286, 22);
-				contentPanel.add(textField);
-			}
-			{
-				JComboBox<String> comboTipos = new JComboBox<String>();
-				comboTipos.setBounds(70, 38, 286, 22);
-				contentPanel.add(comboTipos);
-			}
-			{
-				JPanel panelCategorias = new JPanel();
-				panelCategorias.setBounds(10, 77, 357, 142);
-				contentPanel.add(panelCategorias);
-			}
-			{
-				JPanel buttonPane_1 = new JPanel();
-				buttonPane_1.setBounds(0, 230, 436, 33);
-				contentPanel.add(buttonPane_1);
-				buttonPane_1.setLayout(new FlowLayout(FlowLayout.RIGHT));
-				{
-					JButton okButton_1 = new JButton("OK");
-					okButton_1.setActionCommand("OK");
-					buttonPane_1.add(okButton_1);
-				}
-				{
-					JButton cancelButton_1 = new JButton("Cancel");
-					cancelButton_1.setActionCommand("Cancel");
-					buttonPane_1.add(cancelButton_1);
-				}
-			}
-		}
-	}
+    private void cargarPersonas() {
+        Controladora control = Controladora.getInstance();
+        modeloTabla.setRowCount(0);
+        for (Persona p : control.getPersonas()) {
+            modeloTabla.addRow(new Object[]{p.getNombre(), p.getTelefono()});
+        }
+    }
 
+    private void guardarPrestamo() {
+        try {
+            Controladora control = Controladora.getInstance();
+            int filaSeleccionada = tablaPersonas.getSelectedRow();
+            if (filaSeleccionada == -1) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar una persona.");
+                return;
+            }
+            String telefono = (String) modeloTabla.getValueAt(filaSeleccionada, 1);
+            control.crearPrestamo(telefono);
+            List<Prestamo> prestamos = control.getPrestamos();
+            int numPrestamo = (prestamos.size());
+            List<Integer> codigosSeleccionados = new ArrayList<>();
+            for (Component comp : panelItems.getComponents()) {
+                JCheckBox check = (JCheckBox) comp;
+                if (check.isSelected()) {
+                    codigosSeleccionados.add(Integer.parseInt(check.getName()));
+                }
+            }
+            if (!codigosSeleccionados.isEmpty()) {
+                control.agregarItemsPrestamo(codigosSeleccionados, numPrestamo);
+            }
+            if (checkCrearAlerta.isSelected()) {
+                boolean recurrente = checkRecurrente.isSelected();
+                int minutos = (int) spinnerMinutos.getValue();
+                control.crearAlertaPrestamo(numPrestamo, recurrente, minutos);
+            }
+            dispose();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            VentanaCrearPrestamo dialog = new VentanaCrearPrestamo();
+            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            dialog.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public VentanaCrearPrestamo() {
+        setBounds(100, 100, 460, 340);
+        getContentPane().setLayout(null);
+
+        contentPanel = new JPanel();
+        contentPanel.setBounds(0, 0, 446, 300);
+        contentPanel.setLayout(null);
+        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        getContentPane().add(contentPanel);
+
+        modeloTabla = new DefaultTableModel(
+            new Object[][]{},
+            new String[]{"Nombre", "Teléfono"}
+        ) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        tablaPersonas = new JTable(modeloTabla);
+        tablaPersonas.getColumnModel().getColumn(0).setPreferredWidth(150);
+        tablaPersonas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane scrollPane = new JScrollPane(tablaPersonas);
+        scrollPane.setBounds(10, 11, 420, 62);
+        contentPanel.add(scrollPane);
+
+        JLabel labelItems = new JLabel("Items disponibles:");
+        labelItems.setBounds(10, 82, 140, 14);
+        contentPanel.add(labelItems);
+
+        panelItems = new JPanel();
+        panelItems.setBounds(10, 95, 420, 83);
+        contentPanel.add(panelItems);
+
+        checkCrearAlerta = new JCheckBox("Crear Alerta");
+        checkCrearAlerta.setBounds(6, 185, 110, 22);
+        contentPanel.add(checkCrearAlerta);
+
+        panelAlerta = new JPanel();
+        panelAlerta.setLayout(null);
+        panelAlerta.setBounds(10, 210, 420, 50);
+        panelAlerta.setVisible(false);
+        contentPanel.add(panelAlerta);
+
+        checkRecurrente = new JCheckBox("Recurrente");
+        checkRecurrente.setBounds(10, 7, 100, 22);
+        panelAlerta.add(checkRecurrente);
+
+        JLabel lblMinutos = new JLabel("Minutos:");
+        lblMinutos.setBounds(120, 10, 60, 14);
+        panelAlerta.add(lblMinutos);
+
+        spinnerMinutos = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
+        spinnerMinutos.setBounds(185, 7, 70, 22);
+        panelAlerta.add(spinnerMinutos);
+
+        checkCrearAlerta.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                panelAlerta.setVisible(checkCrearAlerta.isSelected());
+            }
+        });
+
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        buttonPane.setBounds(0, 265, 446, 33);
+        contentPanel.add(buttonPane);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                guardarPrestamo();
+            }
+        });
+        buttonPane.add(okButton);
+
+        JButton cancelButton = new JButton("Cancelar");
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+        buttonPane.add(cancelButton);
+
+        cargarItems();
+        cargarPersonas();
+    }
 }

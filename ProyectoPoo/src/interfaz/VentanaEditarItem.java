@@ -136,7 +136,7 @@ public class VentanaEditarItem extends JDialog {
 		contentPanel.add(lblTipo);
 		
 		JLabel labelCategorias = new JLabel("Categorías: ");
-		labelCategorias.setBounds(10, 63, 75, 14);
+		labelCategorias.setBounds(10, 71, 87, 22);
 		contentPanel.add(labelCategorias);
 		
 		textNombre = new JTextField();
@@ -149,7 +149,7 @@ public class VentanaEditarItem extends JDialog {
 		contentPanel.add(comboTipos);
 		
 		panelCategorias = new JPanel();
-		panelCategorias.setBounds(10, 77, 357, 142);
+		panelCategorias.setBounds(10, 89, 357, 130);
 		contentPanel.add(panelCategorias);
 			
 			buttonPane_1 = new JPanel();

@@ -114,7 +114,7 @@ public class Controladora implements Serializable{
 	    if(p == null)
 	        throw new Exception("Préstamo no encontrado.");
 		p.finalizar();
-		prestamos.remove(p);
+		prestamos.remove(p.getNumero());
 	}
 	
 
@@ -134,6 +134,14 @@ public class Controladora implements Serializable{
 	        Item item = getItem(codigo);
 	        prestamo.agregarItem(item);
 	    }
+	}
+	
+	public void retornarItemPrestamo(Integer codigoItem, Integer numPrestamo) throws Exception {
+	    Prestamo prestamo = prestamos.get(numPrestamo);
+	    if (prestamo == null)
+	        throw new Exception("Préstamo no encontrado.");
+	    Item item = getItem(codigoItem);
+	    prestamo.eliminarItem(item);  
 	}
 	
 	// Ítems
@@ -197,6 +205,13 @@ public class Controladora implements Serializable{
 
 	public List<Item> getItems() {
 		 return new ArrayList<>(items.values());
+	}
+	public List<Item> getItemsDisponibles() {
+		 List<Item> itemsDispo = new ArrayList<>();
+		 for (Item i: getItems())
+			 if (i.getPrestamo() == null)
+				 itemsDispo.add(i);
+		 return itemsDispo;
 	}
 
 	// Tipos
